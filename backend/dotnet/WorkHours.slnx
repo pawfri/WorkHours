@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="WorkHoursLib/WorkHoursLib.csproj" />
+  <Project Path="WorkHoursRest/WorkHoursRest.csproj" Id="8bbf270f-daf9-4564-9b17-3a11cee0a321" />
+</Solution>

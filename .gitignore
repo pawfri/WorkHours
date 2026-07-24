@@ -1,0 +1,25 @@
+# Visual Studio
+.vs/
+
+# Build output
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
+
+# Secrets - exclude environment-specific files but keep base template
+appsettings.Development.json
+appsettings.Production.json
+appsettings.*.json
+secrets.json
+*.env
+secrets.json
+.env
