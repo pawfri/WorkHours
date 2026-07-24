@@ -7,12 +7,12 @@ using WorkHoursLib.Services.Interfaces;
 
 namespace WorkHoursLib.Services.Repositories;
 
-public class GenericRepository<T> : IGenericRepository<T> where T : class
+public class GenericRepositoryDB<T> : IGenericRepository<T> where T : class
 {
     private readonly AppDbContext _context;
 
     private readonly DbSet<T> _dbSet;
-    public GenericRepository(AppDbContext context)
+    public GenericRepositoryDB(AppDbContext context)
     {
         _context = context;
         _dbSet = _context.Set<T>();
@@ -23,28 +23,27 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         return _dbSet.ToList();
     }
 
-    public T GetById(object id)
+    public T? GetById(int id)
     {
         return _dbSet.Find(id);
     }
 
-    public void Insert(T entity)
+    public void Add(T entity)
     {
         _dbSet.Add(entity);
     }
 
     public void Update(T entity)
     {
-        _dbSet.Attach(entity);
-        _context.Entry(entity).State = EntityState.Modified;
+        _dbSet.Update(entity);
     }
 
-    public void Delete(object id)
+    public void Delete(int id)
     {
-        T entityToDelete = _dbSet.Find(id);
-        if (entityToDelete != null)
+        T? entity = _dbSet.Find(id);
+        if (entity != null)
         {
-            _dbSet.Remove(entityToDelete);
+            _dbSet.Remove(entity);
         }
     }
 
