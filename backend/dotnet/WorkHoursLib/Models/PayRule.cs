@@ -7,7 +7,7 @@ namespace WorkHoursLib.Models;
 
 public class PayRule
 {
-    public int PayRuleId { get; set; }
+    public int Id { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
     public ModifierType ModifierType { get; set; }
@@ -16,14 +16,8 @@ public class PayRule
     public DateTime EffectiveTo { get; set; }
 
 
-    public PayRule(int payRuleId, string name, string description, ModifierType modifierType, double modifierValue, DateTime effectiveFrom, DateTime effectiveTo)
+    public override string ToString()
     {
-        PayRuleId = payRuleId;
-        Name = name;
-        Description = description;
-        ModifierType = modifierType;
-        ModifierValue = modifierValue;
-        EffectiveFrom = effectiveFrom;
-        EffectiveTo = effectiveTo;
+        return $"Id: {Id}, Name: {Name}, Description: {Description}, ModifierType: {ModifierType}, ModifierValue: {ModifierValue}, EffectiveFrom: {EffectiveFrom}, EffectiveTo: {EffectiveTo}";
     }
 }

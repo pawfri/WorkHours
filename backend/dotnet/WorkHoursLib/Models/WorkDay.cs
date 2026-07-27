@@ -1,19 +1,20 @@
-﻿namespace WorkHoursLib.Models;
+﻿using System.Xml.Linq;
+using WorkHoursLib.Services.Interfaces;
 
-public class WorkDay
+namespace WorkHoursLib.Models;
+
+public class WorkDay : IEntity
 {
-    public int WorkDayId { get; set; }
+    public int Id { get; set; }
     public DateTime Date { get; set; }
 
     //Foreign Keys
     public int UserId { get; set; }
 
+    public WorkDay() { }
 
-    public WorkDay(int workDayId, DateTime date, int userId)
+    public override string ToString()
     {
-        WorkDayId = workDayId;
-        Date = date;
-        UserId = userId;
+        return $"Id: {Id}, Date: {Date}, UserId: {UserId}";
     }
-
 }

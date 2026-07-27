@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Xml.Linq;
+using WorkHoursLib.Enums;
 
 namespace WorkHoursLib.Models;
 
 public class Interval
 {
 
-    public int IntervalId { get; set; }
+    public int Id { get; set; }
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
 
@@ -16,12 +18,8 @@ public class Interval
     public int LocationId { get; set; }
 
 
-    public Interval(int intervalId, DateTime startTime, DateTime endTime, int workDayId, int locationId)
+    public override string ToString()
     {
-        IntervalId = intervalId;
-        StartTime = startTime;
-        EndTime = endTime;
-        WorkDayId = workDayId;
-        LocationId = locationId;
+        return $"Id: {Id}, StartTime: {StartTime}, EndTime: {EndTime}, WorkDayId: {WorkDayId}, LocationId: {LocationId}";
     }
 }

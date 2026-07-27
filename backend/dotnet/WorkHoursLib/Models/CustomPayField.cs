@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Xml.Linq;
+using WorkHoursLib.Enums;
 
 namespace WorkHoursLib.Models;
 
 public class CustomPayField
 {
-    public int CustomPayFieldId { get; set; }
+    public int Id { get; set; }
     public int PayDetailsId { get; set; }
     public string FieldName { get; set; }
     public string FieldType { get; set; }
@@ -15,14 +17,8 @@ public class CustomPayField
     public DateTime EffectiveTo { get; set; }
 
 
-    public CustomPayField(int customPayFieldId, int payDetailsId, string fieldName, string fieldType, double value, DateTime effectiveFrom, DateTime effectiveTo)
+    public override string ToString()
     {
-        CustomPayFieldId = customPayFieldId;
-        PayDetailsId = payDetailsId;
-        FieldName = fieldName;
-        FieldType = fieldType;
-        Value = value;
-        EffectiveFrom = effectiveFrom;
-        EffectiveTo = effectiveTo;
+        return $"Id: {Id}, PayDetailsId: {PayDetailsId}, FieldName: {FieldName}, FieldType: {FieldType}, Value: {Value}, EffectiveFrom: {EffectiveFrom}, EffectiveTo: {EffectiveTo}";
     }
 }
