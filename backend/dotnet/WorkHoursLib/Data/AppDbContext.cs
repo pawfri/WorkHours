@@ -8,5 +8,5 @@ namespace WorkHoursLib.Data;
 
 public class AppDbContext : DbContext
 {
-    public DbSet<Interval> Intervals { get; set; }
+    public DbSet<Shift> Shifts { get; set; }
 }

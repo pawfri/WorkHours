@@ -1,25 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Xml.Linq;
-using WorkHoursLib.Enums;
+using WorkHoursLib.Services.Interfaces;
 
 namespace WorkHoursLib.Models;
 
-public class Interval
+public class Shift : IEntity
 {
-
     public int Id { get; set; }
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
 
     //Foreign Keys
-    public int WorkDayId { get; set; }
+    public int UserId { get; set; }
     public int LocationId { get; set; }
-
 
     public override string ToString()
     {
-        return $"Id: {Id}, StartTime: {StartTime}, EndTime: {EndTime}, WorkDayId: {WorkDayId}, LocationId: {LocationId}";
+        return $"Id: {Id}, StartTime: {StartTime}, EndTime: {EndTime}, UserId: {UserId}, LocationId: {LocationId}";
     }
+
 }

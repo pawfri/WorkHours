@@ -8,16 +8,16 @@ namespace WorkHoursRest.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class WorkDaysController : ControllerBase
+public class ShiftsController : ControllerBase
 {
-    private readonly IGenericRepository<WorkDay> _repository;
+    private readonly IGenericRepository<Shift> _repository;
 
-    public WorkDaysController(IGenericRepository<WorkDay> repository)
+    public ShiftsController(IGenericRepository<Shift> repository)
     {
         _repository = repository;
     }
 
-    // GET: api/<WorkDaysController>
+    // GET: api/<ShiftsController>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public IActionResult Get()
@@ -25,67 +25,67 @@ public class WorkDaysController : ControllerBase
         return Ok(_repository.GetAll());
     }
 
-    // GET api/<WorkDaysController>/5
+    // GET api/<ShiftsController>/5
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult Get(int id)
     {
-        var workDay = _repository.GetById(id);
-        if (workDay == null)
+        var shift = _repository.GetById(id);
+        if (shift == null)
         {
             return NotFound();
         }
-        return Ok(workDay);
+        return Ok(shift);
     }
 
-    // POST api/<WorkDaysController>
+    // POST api/<ShiftsController>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public IActionResult Post([FromBody] WorkDay workDay)
+    public IActionResult Post([FromBody] Shift shift)
     {
-        if (workDay == null)
+        if (shift == null)
         {
             return BadRequest();
         }
 
-        _repository.Add(workDay);
-        return CreatedAtAction(nameof(Get), new { id = workDay.Id }, workDay);
+        _repository.Add(shift);
+        return CreatedAtAction(nameof(Get), new { id = shift.Id }, shift);
     }
 
-    // PUT api/<WorkDaysController>/5
+    // PUT api/<ShiftsController>/5
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public IActionResult Put(int id, [FromBody] WorkDay workDay)
+    public IActionResult Put(int id, [FromBody] Shift shift)
     {
-        if (workDay == null || id != workDay.Id)
+        if (shift == null || id != shift.Id)
         {
             return BadRequest();
         }
 
-        var existingWorkDay = _repository.GetById(id);
+        var existingShift = _repository.GetById(id);
 
-        if (existingWorkDay == null)
+        if (existingShift == null)
         {
             return NotFound();
         }
 
-        _repository.Update(workDay);
+        _repository.Update(shift);
         return NoContent();
     }
 
-    // DELETE api/<WorkDaysController>/5
+    // DELETE api/<ShiftsController>/5
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult Delete(int id)
     {
-        var existingWorkDay = _repository.GetById(id);
+        var existingShift = _repository.GetById(id);
 
-        if (existingWorkDay == null)
+        if (existingShift == null)
         {
             return NotFound();
         }
