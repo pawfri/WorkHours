@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+﻿using WorkHoursLib.Services.Interfaces;
+
 
 namespace WorkHoursLib.Models;
 
-public class User
+public class User : IEntity
 {
     public int Id { get; set; }
     public string UserName { get; set; }

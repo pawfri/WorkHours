@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using WorkHoursLib.Services.Interfaces;
+﻿using WorkHoursLib.Services.Interfaces;
 
 namespace WorkHoursLib.Models;
 
