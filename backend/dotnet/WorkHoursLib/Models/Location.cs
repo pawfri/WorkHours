@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using WorkHoursLib.Enums;
+﻿using WorkHoursLib.Services.Interfaces;
 
 namespace WorkHoursLib.Models;
 
-public class Location
+public class Location : IEntity
 {
     public int Id { get; set; }
     public string Name { get; set; }

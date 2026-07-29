@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml.Linq;
-using WorkHoursLib.Enums;
+﻿using WorkHoursLib.Enums;
+using WorkHoursLib.Services.Interfaces;
 
 namespace WorkHoursLib.Models;
 
-public class PayDetails
+public class PayDetail : IEntity
 {
     public int Id { get; set; }
     public double HourlyRate { get; set; }
