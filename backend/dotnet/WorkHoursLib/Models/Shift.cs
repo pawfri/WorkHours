@@ -17,4 +17,19 @@ public class Shift : IEntity
         return $"Id: {Id}, StartTime: {StartTime}, EndTime: {EndTime}, UserId: {UserId}, LocationId: {LocationId}";
     }
 
+    public double TotalHours()
+    {
+        return (EndTime - StartTime).TotalHours;
+    }
+
+    public TimeSpan Duration()
+    {
+        return EndTime - StartTime;
+    }
+
+    public bool IsValid()
+    {
+        return EndTime > StartTime;
+    }
+
 }
