@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WorkHoursLib.Models;
 using WorkHoursLib.Services.Interfaces;
+using WorkHoursRest.Dtos;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -44,14 +45,28 @@ public class LocationsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public IActionResult Post([FromBody] Location location)
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public IActionResult Post([FromBody] CreateLocationRequest request)
     {
-        if (location == null)
+        var name = request.Name!.Trim();
+        bool nameTaken = _repository.GetAll()
+            .Any(l => string.Equals(l.Name, name, StringComparison.OrdinalIgnoreCase));
+
+        if (nameTaken)
         {
-            return BadRequest();
+            return Problem(statusCode: StatusCodes.Status409Conflict, detail: $"A location named '{name}' already exists.");
         }
 
+        var location = new Location
+        {
+            Name = name,
+            Address = string.IsNullOrWhiteSpace(request.Address) ? null : request.Address.Trim(),
+            City = string.IsNullOrWhiteSpace(request.City) ? null : request.City.Trim(),
+            ZipCode = string.IsNullOrWhiteSpace(request.ZipCode) ? null : request.ZipCode.Trim()
+        };
+
         _repository.Add(location);
+        _repository.Save();
         return CreatedAtAction(nameof(Get), new { id = location.Id }, location);
     }
 
