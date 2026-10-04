@@ -5,7 +5,7 @@ using WorkHoursLib.Models;
 
 namespace WorkHoursTest.IntegrationTests;
 
-// User story: As an employee, I want to save the places where I work,
+// User story: As a user, I want to save the places where I work,
 // so that I can record where each shift took place.
 public class LocationsCreateTests : IDisposable
 {
@@ -27,9 +27,11 @@ public class LocationsCreateTests : IDisposable
     [Fact]
     public async Task Create_WithAllFields_Returns201WithIdAndLocation()
     {
+        // Act
         var response = await _client.PostAsJsonAsync("/api/locations",
             new { name = "Office", address = "Main Street 1", city = "Copenhagen", zipCode = "1000" });
 
+        // Assert
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var created = await response.Content.ReadFromJsonAsync<Location>();
         Assert.NotNull(created);
@@ -45,8 +47,10 @@ public class LocationsCreateTests : IDisposable
     [Fact]
     public async Task Create_WithNameOnly_Returns201()
     {
+        // Act
         var response = await _client.PostAsJsonAsync("/api/locations", new { name = "Warehouse" });
 
+        // Assert
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var created = await response.Content.ReadFromJsonAsync<Location>();
         Assert.NotNull(created);
@@ -58,9 +62,13 @@ public class LocationsCreateTests : IDisposable
     [Fact]
     public async Task Create_LinkReturned_ResolvesToCreatedLocation()
     {
+        // Arrange
         var response = await _client.PostAsJsonAsync("/api/locations", new { name = "Office" });
 
+        // Act
         var fetched = await _client.GetFromJsonAsync<Location>(response.Headers.Location);
+
+        // Assert
         Assert.NotNull(fetched);
         Assert.Equal("Office", fetched.Name);
     }
@@ -68,8 +76,10 @@ public class LocationsCreateTests : IDisposable
     [Fact]
     public async Task Create_TrimsName()
     {
+        // Act
         var response = await _client.PostAsJsonAsync("/api/locations", new { name = "  Office  " });
 
+        // Assert
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var created = await response.Content.ReadFromJsonAsync<Location>();
         Assert.Equal("Office", created!.Name);
@@ -82,33 +92,41 @@ public class LocationsCreateTests : IDisposable
     [InlineData("{\"name\":\"   \"}")]
     public async Task Create_MissingOrBlankName_Returns400(string json)
     {
+        // Act
         var response = await _client.PostAsync("/api/locations",
             new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
 
+        // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [Fact]
     public async Task Create_NameOf100Chars_Returns201()
     {
+        // Act
         var response = await _client.PostAsJsonAsync("/api/locations", new { name = new string('a', 100) });
 
+        // Assert
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }
 
     [Fact]
     public async Task Create_NameOf101Chars_Returns400()
     {
+        // Act
         var response = await _client.PostAsJsonAsync("/api/locations", new { name = new string('a', 101) });
 
+        // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [Fact]
     public async Task Create_NameOf100CharsWithSurroundingSpaces_Returns201()
     {
+        // Act
         var response = await _client.PostAsJsonAsync("/api/locations", new { name = "  " + new string('a', 100) + "  " });
 
+        // Assert
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }
 
@@ -118,10 +136,13 @@ public class LocationsCreateTests : IDisposable
     [InlineData("  office ")]
     public async Task Create_DuplicateNameIgnoringCase_Returns409(string duplicate)
     {
+        // Arrange
         await _client.PostAsJsonAsync("/api/locations", new { name = "Office" });
 
+        // Act
         var response = await _client.PostAsJsonAsync("/api/locations", new { name = duplicate });
 
+        // Assert
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
         var all = await _client.GetFromJsonAsync<List<Location>>("/api/locations");
         Assert.Single(all!);
@@ -130,11 +151,14 @@ public class LocationsCreateTests : IDisposable
     [Fact]
     public async Task Create_AppearsInListImmediately()
     {
+        // Arrange
         var response = await _client.PostAsJsonAsync("/api/locations", new { name = "Office" });
         var created = await response.Content.ReadFromJsonAsync<Location>();
 
+        // Act
         var all = await _client.GetFromJsonAsync<List<Location>>("/api/locations");
 
+        // Assert
         Assert.Contains(all!, l => l.Id == created!.Id && l.Name == "Office");
     }
 }
