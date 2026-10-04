@@ -23,7 +23,10 @@ public class LocationsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public IActionResult Get()
     {
-        var locations = _repository.GetAll();
+        var locations = _repository.GetAll()
+            .OrderBy(l => l.Name, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
         return Ok(locations);
     }
 
