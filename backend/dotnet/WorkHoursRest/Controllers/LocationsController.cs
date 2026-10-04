@@ -46,24 +46,24 @@ public class LocationsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public IActionResult Post([FromBody] CreateLocationRequest request)
+    public IActionResult Post([FromBody] LocationDto request)
     {
-        var name = request.Name!.Trim();
+        var location = new Location
+        {
+            Name = request.Name,
+            Address = request.Address,
+            City = request.City,
+            ZipCode = request.ZipCode
+        };
+        location.Normalize();
+
         bool nameTaken = _repository.GetAll()
-            .Any(l => string.Equals(l.Name, name, StringComparison.OrdinalIgnoreCase));
+            .Any(l => string.Equals(l.Name, location.Name, StringComparison.OrdinalIgnoreCase));
 
         if (nameTaken)
         {
-            return Problem(statusCode: StatusCodes.Status409Conflict, detail: $"A location named '{name}' already exists.");
+            return Problem(statusCode: StatusCodes.Status409Conflict, detail: $"A location named '{location.Name}' already exists.");
         }
-
-        var location = new Location
-        {
-            Name = name,
-            Address = string.IsNullOrWhiteSpace(request.Address) ? null : request.Address.Trim(),
-            City = string.IsNullOrWhiteSpace(request.City) ? null : request.City.Trim(),
-            ZipCode = string.IsNullOrWhiteSpace(request.ZipCode) ? null : request.ZipCode.Trim()
-        };
 
         _repository.Add(location);
         _repository.Save();
@@ -75,21 +75,35 @@ public class LocationsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public IActionResult Put(int id, [FromBody] Location location)
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public IActionResult Put(int id, [FromBody] LocationDto request)
     {
-        if (location == null || id != location.Id)
-        {
-            return BadRequest();
-        }
-
         if (_repository.GetById(id) == null)
         {
             return NotFound();
         }
 
-        _repository.Update(location);
-        return NoContent();
+        var location = new Location
+        {
+            Id = id,
+            Name = request.Name,
+            Address = request.Address,
+            City = request.City,
+            ZipCode = request.ZipCode
+        };
+        location.Normalize();
 
+        bool nameTaken = _repository.GetAll()
+            .Any(l => l.Id != id && string.Equals(l.Name, location.Name, StringComparison.OrdinalIgnoreCase));
+
+        if (nameTaken)
+        {
+            return Problem(statusCode: StatusCodes.Status409Conflict, detail: $"A location named '{location.Name}' already exists.");
+        }
+
+        _repository.Update(location);
+        _repository.Save();
+        return NoContent();
     }
 
     // DELETE api/<LocationsController>/5
@@ -104,6 +118,7 @@ public class LocationsController : ControllerBase
         }
 
         _repository.Delete(id);
+        _repository.Save();
         return NoContent();
     }
 }
