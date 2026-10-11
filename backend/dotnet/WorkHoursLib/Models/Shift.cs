@@ -1,12 +1,18 @@
-﻿using WorkHoursLib.Services.Interfaces;
+﻿using System.ComponentModel.DataAnnotations;
+using WorkHoursLib.Services.Interfaces;
 
 namespace WorkHoursLib.Models;
 
 public class Shift : IEntity
 {
+   public const int NoteMaxLength = 500;
+
     public int Id { get; set; }
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
+
+    [MaxLength(NoteMaxLength)]
+    public string? Note { get; set; }
 
     //Foreign Keys
     public int UserId { get; set; }
