@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WorkHoursLib.Models;
 using WorkHoursLib.Services.Interfaces;
+using WorkHoursRest.Dtos;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -11,10 +12,12 @@ namespace WorkHoursRest.Controllers;
 public class ShiftsController : ControllerBase
 {
     private readonly IGenericRepository<Shift> _repository;
+    private readonly IGenericRepository<Location> _locationRepository;
 
-    public ShiftsController(IGenericRepository<Shift> repository)
+    public ShiftsController(IGenericRepository<Shift> repository, IGenericRepository<Location> locationRepository)
     {
         _repository = repository;
+        _locationRepository = locationRepository;
     }
 
     // GET: api/<ShiftsController>
@@ -43,15 +46,29 @@ public class ShiftsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public IActionResult Post([FromBody] Shift shift)
+    public IActionResult Post([FromBody] ShiftDto request)
     {
-        if (shift == null)
+        var shift = new Shift
         {
-            return BadRequest();
+            StartTime = request.StartTime!.Value,
+            EndTime = request.EndTime!.Value,
+            Note = request.Note,
+            LocationId = request.LocationId!.Value
+        };
+
+        if (!shift.IsValid())
+        {
+            return Problem(statusCode: StatusCodes.Status400BadRequest, detail: "End time must be after start time.");
+        }
+
+        if (_locationRepository.GetById(shift.LocationId) == null)
+        {
+            return Problem(statusCode: StatusCodes.Status400BadRequest, detail: $"Location {shift.LocationId} does not exist.");
         }
 
         _repository.Add(shift);
-        return CreatedAtAction(nameof(Get), new { id = shift.Id }, shift);
+        _repository.Save();
+        return CreatedAtAction(nameof(Get), new { id = shift.Id }, ShiftResponseDto.From(shift));
     }
 
     // PUT api/<ShiftsController>/5
