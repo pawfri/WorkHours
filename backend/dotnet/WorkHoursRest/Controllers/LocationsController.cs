@@ -12,10 +12,12 @@ namespace WorkHoursRest.Controllers;
 public class LocationsController : ControllerBase
 {
     private readonly IGenericRepository<Location> _repository;
+    private readonly IGenericRepository<Shift> _shiftRepository;
 
-    public LocationsController(IGenericRepository<Location> repository)
+    public LocationsController(IGenericRepository<Location> repository, IGenericRepository<Shift> shiftRepository)
     {
         _repository = repository;
+        _shiftRepository = shiftRepository;
     }
 
     // GET: api/<LocationsController>
@@ -113,11 +115,19 @@ public class LocationsController : ControllerBase
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public IActionResult Delete(int id)
     {
         if (_repository.GetById(id) == null)
         {
             return NotFound();
+        }
+
+        int shiftCount = _shiftRepository.GetAll().Count(s => s.LocationId == id);
+        if (shiftCount > 0)
+        {
+            return Problem(statusCode: StatusCodes.Status409Conflict,
+                detail: $"This location cannot be deleted because it is used by {shiftCount} shift(s).");
         }
 
         _repository.Delete(id);
