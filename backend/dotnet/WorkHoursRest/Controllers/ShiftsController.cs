@@ -81,21 +81,39 @@ public class ShiftsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public IActionResult Put(int id, [FromBody] Shift shift)
+    public IActionResult Put(int id, [FromBody] ShiftDto request)
     {
-        if (shift == null || id != shift.Id)
+        var shift = new Shift
         {
-            return BadRequest();
+            Id = id,
+            StartTime = request.StartTime!.Value,
+            EndTime = request.EndTime!.Value,
+            Note = request.Note,
+            LocationId = request.LocationId!.Value
+        };
+
+        if (!shift.IsValid())
+        {
+            return Problem(statusCode: StatusCodes.Status400BadRequest, detail: "End time must be after start time.");
         }
 
-        var existingShift = _repository.GetById(id);
+        if (_locationRepository.GetById(shift.LocationId) == null)
+        {
+            return Problem(statusCode: StatusCodes.Status400BadRequest, detail: $"Location {shift.LocationId} does not exist.");
+        }
 
-        if (existingShift == null)
+        if (_repository.GetAll().Any(s => s.Id != id && s.IsOverlapping(shift)))
+        {
+            return Problem(statusCode: StatusCodes.Status400BadRequest, detail: "Shift overlaps with an existing shift.");
+        }
+
+        if (_repository.GetById(id) == null)
         {
             return NotFound();
         }
 
         _repository.Update(shift);
+        _repository.Save();
         return NoContent();
     }
 
