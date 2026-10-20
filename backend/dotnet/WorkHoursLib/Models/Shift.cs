@@ -43,4 +43,14 @@ public class Shift : IEntity
         return StartTime < otherShift.EndTime && EndTime > otherShift.StartTime;
     }
 
+    public DateOnly Date()
+    {
+        return DateOnly.FromDateTime(StartTime);
+    }
+
+    public static TimeSpan TotalDuration(IEnumerable<Shift> shifts)
+    {
+        return shifts.Aggregate(TimeSpan.Zero, (total, shift) => total + shift.Duration());
+    }
+
 }

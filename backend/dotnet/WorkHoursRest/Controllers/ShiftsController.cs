@@ -42,6 +42,20 @@ public class ShiftsController : ControllerBase
         return Ok(shift);
     }
 
+    // GET api/<ShiftsController>/day/2026-01-05
+    [HttpGet("day/{date}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public IActionResult GetDay(DateOnly date)
+    {
+        var shifts = _repository.GetAll()
+            .Where(s => s.Date() == date)
+            .OrderBy(s => s.StartTime)
+            .ToList();
+
+        return Ok(DaySummaryDto.From(date, shifts));
+    }
+
     // POST api/<ShiftsController>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -92,6 +106,11 @@ public class ShiftsController : ControllerBase
             LocationId = request.LocationId!.Value
         };
 
+        if (_repository.GetById(id) == null)
+        {
+            return NotFound();
+        }
+
         if (!shift.IsValid())
         {
             return Problem(statusCode: StatusCodes.Status400BadRequest, detail: "End time must be after start time.");
@@ -105,11 +124,6 @@ public class ShiftsController : ControllerBase
         if (_repository.GetAll().Any(s => s.Id != id && s.IsOverlapping(shift)))
         {
             return Problem(statusCode: StatusCodes.Status400BadRequest, detail: "Shift overlaps with an existing shift.");
-        }
-
-        if (_repository.GetById(id) == null)
-        {
-            return NotFound();
         }
 
         _repository.Update(shift);
