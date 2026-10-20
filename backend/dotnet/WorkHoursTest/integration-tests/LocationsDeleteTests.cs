@@ -31,12 +31,14 @@ public class LocationsDeleteTests : IDisposable
         return (await response.Content.ReadFromJsonAsync<Location>())!;
     }
 
-    private async Task<Shift> CreateShift(int locationId)
+    // Shifts may not overlap, so tests that create several shifts give each its own day.
+    private async Task<Shift> CreateShift(int locationId, int dayOffset = 0)
     {
+        var day = new DateTime(2026, 1, 5).AddDays(dayOffset);
         var response = await _client.PostAsJsonAsync("/api/shifts", new
         {
-            startTime = new DateTime(2026, 1, 5, 8, 0, 0),
-            endTime = new DateTime(2026, 1, 5, 16, 0, 0),
+            startTime = day.AddHours(8),
+            endTime = day.AddHours(16),
             userId = 1,
             locationId
         });
@@ -125,9 +127,9 @@ public class LocationsDeleteTests : IDisposable
     {
         // Arrange
         var location = await CreateLocation("Office");
-        await CreateShift(location.Id);
-        await CreateShift(location.Id);
-        await CreateShift(location.Id);
+        await CreateShift(location.Id, 0);
+        await CreateShift(location.Id, 1);
+        await CreateShift(location.Id, 2);
 
         // Act
         var response = await _client.DeleteAsync($"/api/locations/{location.Id}");
@@ -143,8 +145,8 @@ public class LocationsDeleteTests : IDisposable
     {
         // Arrange
         var location = await CreateLocation("Office");
-        var shift1 = await CreateShift(location.Id);
-        var shift2 = await CreateShift(location.Id);
+        var shift1 = await CreateShift(location.Id, 0);
+        var shift2 = await CreateShift(location.Id, 1);
 
         // Act
         await _client.DeleteAsync($"/api/locations/{location.Id}");
