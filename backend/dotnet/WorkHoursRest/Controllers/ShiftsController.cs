@@ -66,6 +66,11 @@ public class ShiftsController : ControllerBase
             return Problem(statusCode: StatusCodes.Status400BadRequest, detail: $"Location {shift.LocationId} does not exist.");
         }
 
+        if (_repository.GetAll().Any(s => s.IsOverlapping(shift)))
+        {
+            return Problem(statusCode: StatusCodes.Status400BadRequest, detail: "Shift overlaps with an existing shift.");
+        }
+
         _repository.Add(shift);
         _repository.Save();
         return CreatedAtAction(nameof(Get), new { id = shift.Id }, ShiftResponseDto.From(shift));

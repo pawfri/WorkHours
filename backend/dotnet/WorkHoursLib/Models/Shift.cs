@@ -38,4 +38,9 @@ public class Shift : IEntity
         return EndTime > StartTime;
     }
 
+    public bool IsOverlapping(Shift otherShift)
+    {
+        return StartTime < otherShift.EndTime && EndTime > otherShift.StartTime;
+    }
+
 }
