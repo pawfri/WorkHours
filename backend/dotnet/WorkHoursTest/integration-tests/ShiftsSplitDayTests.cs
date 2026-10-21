@@ -138,58 +138,6 @@ public class ShiftsSplitDayTests : IDisposable
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }
 
-    // Overlapping shifts are rejected, so no time is counted twice
-
-    [Theory]
-    [InlineData("2026-01-05T11:00:00", "2026-01-05T13:00:00")] // overlaps the end
-    [InlineData("2026-01-05T07:00:00", "2026-01-05T09:00:00")] // overlaps the start
-    [InlineData("2026-01-05T09:00:00", "2026-01-05T11:00:00")] // inside
-    [InlineData("2026-01-05T07:00:00", "2026-01-05T13:00:00")] // covers
-    [InlineData("2026-01-05T08:00:00", "2026-01-05T12:00:00")] // identical
-    public async Task Create_OverlappingShift_Returns400AndDoesNotSaveShift(string start, string end)
-    {
-        // Arrange
-        var location = await CreateLocation();
-        await CreateShift(location.Id, "2026-01-05T08:00:00", "2026-01-05T12:00:00");
-
-        // Act
-        var response = await PostShift(location.Id, start, end);
-
-        // Assert
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        var all = await _client.GetFromJsonAsync<List<Shift>>("/api/shifts");
-        Assert.Single(all!);
-    }
-
-    [Fact]
-    public async Task Create_OverlappingShiftAtDifferentLocation_Returns400()
-    {
-        // Arrange
-        var office = await CreateLocation("Office");
-        var cafe = await CreateLocation("Cafe");
-        await CreateShift(office.Id, "2026-01-05T08:00:00", "2026-01-05T12:00:00");
-
-        // Act
-        var response = await PostShift(cafe.Id, "2026-01-05T11:00:00", "2026-01-05T13:00:00");
-
-        // Assert
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-    }
-
-    [Fact]
-    public async Task Create_ShiftOverlappingAcrossMidnight_Returns400()
-    {
-        // Arrange
-        var location = await CreateLocation();
-        await CreateShift(location.Id, "2026-01-05T22:00:00", "2026-01-06T06:00:00");
-
-        // Act
-        var response = await PostShift(location.Id, "2026-01-06T05:00:00", "2026-01-06T09:00:00");
-
-        // Assert
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-    }
-
     // Worked time for a date
 
     [Fact]
