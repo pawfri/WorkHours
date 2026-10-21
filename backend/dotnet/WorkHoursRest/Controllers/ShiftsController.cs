@@ -152,6 +152,7 @@ public class ShiftsController : ControllerBase
         }
 
         _repository.Delete(id);
+        _repository.Save();
         return NoContent();
     }
 }
