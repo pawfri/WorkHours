@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Globalization;
+using Microsoft.AspNetCore.Mvc;
 using WorkHoursLib.Models;
 using WorkHoursLib.Services.Interfaces;
 using WorkHoursRest.Dtos;
@@ -60,6 +61,7 @@ public class ShiftsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public IActionResult Post([FromBody] ShiftDto request)
     {
         var shift = new Shift
@@ -80,9 +82,11 @@ public class ShiftsController : ControllerBase
             return Problem(statusCode: StatusCodes.Status400BadRequest, detail: $"Location {shift.LocationId} does not exist.");
         }
 
-        if (_repository.GetAll().Any(s => s.IsOverlapping(shift)))
+        var conflict = _repository.GetAll().FirstOrDefault(s => s.IsOverlapping(shift));
+        if (conflict != null)
         {
-            return Problem(statusCode: StatusCodes.Status400BadRequest, detail: "Shift overlaps with an existing shift.");
+            return Problem(statusCode: StatusCodes.Status409Conflict, detail: string.Create(CultureInfo.InvariantCulture,
+                $"Shift overlaps with shift {conflict.Id} from {conflict.StartTime:yyyy-MM-dd HH:mm} to {conflict.EndTime:yyyy-MM-dd HH:mm}."));
         }
 
         _repository.Add(shift);
@@ -95,6 +99,7 @@ public class ShiftsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public IActionResult Put(int id, [FromBody] ShiftDto request)
     {
         var shift = new Shift
@@ -121,9 +126,11 @@ public class ShiftsController : ControllerBase
             return Problem(statusCode: StatusCodes.Status400BadRequest, detail: $"Location {shift.LocationId} does not exist.");
         }
 
-        if (_repository.GetAll().Any(s => s.Id != id && s.IsOverlapping(shift)))
+        var conflict = _repository.GetAll().FirstOrDefault(s => s.Id != id && s.IsOverlapping(shift));
+        if (conflict != null)
         {
-            return Problem(statusCode: StatusCodes.Status400BadRequest, detail: "Shift overlaps with an existing shift.");
+            return Problem(statusCode: StatusCodes.Status409Conflict, detail: string.Create(CultureInfo.InvariantCulture,
+                $"Shift overlaps with shift {conflict.Id} from {conflict.StartTime:yyyy-MM-dd HH:mm} to {conflict.EndTime:yyyy-MM-dd HH:mm}."));
         }
 
         _repository.Update(shift);
