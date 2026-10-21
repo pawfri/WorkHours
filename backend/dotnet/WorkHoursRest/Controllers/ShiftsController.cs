@@ -102,28 +102,27 @@ public class ShiftsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public IActionResult Put(int id, [FromBody] ShiftDto request)
     {
-        var shift = new Shift
-        {
-            Id = id,
-            StartTime = request.StartTime!.Value,
-            EndTime = request.EndTime!.Value,
-            Note = request.Note,
-            LocationId = request.LocationId!.Value
-        };
+        var existingShift = _repository.GetById(id);
 
-        if (_repository.GetById(id) == null)
+        if (existingShift == null)
         {
             return NotFound();
         }
+
+        var shift = new Shift
+        {
+            StartTime = request.StartTime!.Value,
+            EndTime = request.EndTime!.Value
+        };
 
         if (!shift.IsValid())
         {
             return Problem(statusCode: StatusCodes.Status400BadRequest, detail: "End time must be after start time.");
         }
 
-        if (_locationRepository.GetById(shift.LocationId) == null)
+        if (_locationRepository.GetById(request.LocationId!.Value) == null)
         {
-            return Problem(statusCode: StatusCodes.Status400BadRequest, detail: $"Location {shift.LocationId} does not exist.");
+            return Problem(statusCode: StatusCodes.Status400BadRequest, detail: $"Location {request.LocationId} does not exist.");
         }
 
         var conflict = _repository.GetAll().FirstOrDefault(s => s.Id != id && s.IsOverlapping(shift));
@@ -133,7 +132,12 @@ public class ShiftsController : ControllerBase
                 $"Shift overlaps with shift {conflict.Id} from {conflict.StartTime:yyyy-MM-dd HH:mm} to {conflict.EndTime:yyyy-MM-dd HH:mm}."));
         }
 
-        _repository.Update(shift);
+        existingShift.StartTime = shift.StartTime;
+        existingShift.EndTime = shift.EndTime;
+        existingShift.Note = request.Note;
+        existingShift.LocationId = request.LocationId!.Value;
+
+        _repository.Update(existingShift);
         _repository.Save();
         return NoContent();
     }
