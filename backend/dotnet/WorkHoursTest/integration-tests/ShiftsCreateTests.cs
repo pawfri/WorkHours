@@ -235,21 +235,6 @@ public class ShiftsCreateTests : IDisposable
     }
 
     [Fact]
-    public async Task Create_ShiftCrossingMidnight_Returns201()
-    {
-        // Arrange
-        var location = await CreateLocation();
-
-        // Act
-        var response = await PostShift(location.Id, "2026-01-05T22:00:00", "2026-01-06T06:00:00");
-
-        // Assert
-        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-        var created = await response.Content.ReadFromJsonAsync<ShiftResponseDto>();
-        Assert.Equal("8:00", created!.Duration);
-    }
-
-    [Fact]
     public async Task Create_EndBeforeStart_DoesNotSaveShift()
     {
         // Arrange

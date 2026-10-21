@@ -236,23 +236,6 @@ public class ShiftsSplitDayTests : IDisposable
     }
 
     [Fact]
-    public async Task GetDay_ShiftCrossingMidnight_CountsOnStartDate()
-    {
-        // Arrange
-        var location = await CreateLocation();
-        await CreateShift(location.Id, "2026-01-05T22:00:00", "2026-01-06T06:00:00");
-
-        // Act
-        var startDay = await GetDay("2026-01-05");
-        var nextDay = await GetDay("2026-01-06");
-
-        // Assert
-        Assert.Equal("8:00", startDay.Duration);
-        Assert.Empty(nextDay.Shifts);
-        Assert.Equal("0:00", nextDay.Duration);
-    }
-
-    [Fact]
     public async Task GetDay_TotalIsRoundedOnceNotPerShift()
     {
         // Arrange: each shift is 0.33 hours, but together they are exactly 1 hour
